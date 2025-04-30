@@ -46,16 +46,17 @@
 
     var instructions = {
         type: jsPsychHtmlKeyboardResponse,
-        stimulus: `
-            <p>In this experiment, you will be shown a series of <b>5-character phrases</b>, one at a time.</p>
+        stimulus: function () {
+            let a = exp_type == 'single' ? `<b>5-character</b>` : ``;
+            return `
+            <p>In this experiment, you will be shown a series of ${a} phrases, one at a time.</p>
             <p>For each word, press 'seen' if you have seen the phrase before, and 'new' if this is the first time you're seeing the phrase.</p>
             <p>Press any key to begin.</p>
-        `
+        `}
     };
     timeline.push(instructions);
 
     // 
-
     var initTrial = {
         type: jsPsychHtmlButtonResponse,
         stimulus: function () {
