@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Reaction Time</title>
+    <script src="https://unpkg.com/jspsych@8.2.1"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@2.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-preload@2.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-button-response@2.1.0"></script>
+    <!-- preloading media -->
+    <link href="https://unpkg.com/jspsych@8.2.1/css/jspsych.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body></body>
+<script>
+    var jsPsych = initJsPsych({
+        on_finish: function () {
+        }
+    });
+
+    var timeline = [];
+
+    var welcome = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: "Hi! Welcome and thanks for participating in the experiment!",
+        choices: ['Begin']
+    }
+    timeline.push(welcome);
+
+    var exp_type = Math.random() < 0.5 ? 'single' : 'multi';
+
+    var wordPool = [];
+    if (exp_type == 'single') {
+        wordPool = [
+            'TC9K9', 'CNZQV', 'MWCWO', 'JUREU', '3RDFA', 'TAQKB', '9KZ4B', 'QJ4RE',
+            '48AO5', 'ZCGXO', 'F6SZ3', 'JF64Q', 'X4U2E', '7YTYV', 'LXGGK', 'YO9LH',
+            'NUAC8', 'PRWT6', 'BEP0L', 'O61TR', 'F05F0', 'P7310', 'AA9LE', 'XR6Q3',
+            'IZEHH', 'JPZ7K', '6W08P', '45NQG', '6QX7G', 'YTXCY', '8XSS4', 'Q4YSY',
+            'M1KXJ', 'DQDTA', 'VVDE3', 'E88TS', 'LECP1', 'TESB8', 'NEOA1', 'YRR8Z'
+        ]
+    } else {
+        wordPool = ['DFGW03', 'ZXFB', 'IXWE', 'JWVXY', 'VOF5962', 'DSALN6G', 'OLR8ZRF', 'Z6PBO', 'BDRBZ0HFL', 'NYTGY', 'JPFXHQ', 'C2PMOE', '01WQAW', 'JUAQA', 'FZHA7TJ', 'V7X', 'ZH3S', '6ZQ', '7YSC', 'W0QD', 'FCJ', 'AZDTT', 'LNXH', '1Y2RVHZA', 'XSYDCVF', 'SUMBJ', 'VMQVCJM', 'WFKYMD', 'KKOWY6STV', 'X80H3G', 'RQTLHA', 'XOHP63HBU', 'CQEIGIJ7', 'VIUC', 'KBYZO2K', '6BH6', 'FBEEKFO', 'SW13G', 'SAYTHH8', 'A61'];
+    };
+
+    let seenWords = new Set();
+
+    var instructions = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: `
+            <p>In this experiment, you will be shown a series of <b>5-character phrases</b>, one at a time.</p>
+            <p>For each word, press 'seen' if you have seen the phrase before, and 'new' if this is the first time you're seeing the phrase.</p>
+            <p>Press any key to begin.</p>
+        `
+    };
+    timeline.push(instructions);
+
+    // 
+
+    var initTrial = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: function () {
+            let randIdx = Math.floor(Math.random() * wordPool.length);
+            let wordInit = wordPool[randIdx];
+            // add this to seen words
+            seenWords.add(wordInit);
+            return `<div style="font-size: 40px;">${wordInit}</div>`;
+        },
+        choices: ['Seen', 'New'],
+        data: function () {
+            return {
+                trial_type: 'memory',
+                correct_response: 1,
+            }
+        },
+        on_finish: function (data) {
+            console.log(data.response);
+            data.correct = data.response == data.correct_response;
+        }
+    };
+    timeline.push(initTrial);
+
+    var test_stimuli = [
+        {
+            correct_response: 0
+        },
+        {
+            correct_response: 1, // 1 is new
+        }
+    ]
+    // okay, now we make two types of trials
+    var test = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: function () {
+            let word = "";
+            if (jsPsych.timelineVariable('correct_response') == 0) {
+                let seenArray = Array.from(seenWords);
+                word = seenArray[Math.floor(Math.random() * seenArray.length)];
+            } else {
+                let unusedWords = wordPool.filter(w => !seenWords.has(w));
+                word = unusedWords[Math.floor(Math.random() * unusedWords.length)];
+                seenWords.add(word);
+            }
+            return `<div style="font-size: 40px;">${word}</div>`;
+        },
+        choices: ['Seen', 'New'],
+        data: {
+            task: exp_type,
+            correct_response: jsPsych.timelineVariable('correct_response'),
+        },
+        on_finish: function (data) {
+            console.log(data.response);
+            data.correct = data.response == data.correct_response;
+        }
+    };
+
+    var test_procedure = {
+        timeline: [test],
+        timeline_variables: test_stimuli,
+        sample: {
+            type: 'with-replacement',
+            size: 29
+        }
+    };
+
+    timeline.push(test_procedure);
+
+    // Add a thank you message
+    var ty = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: "Thank you for participating!"
+    };
+    timeline.push(ty);
+
+    jsPsych.run(timeline);
+</script>
+
+</html>
