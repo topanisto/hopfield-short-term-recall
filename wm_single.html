@@ -20,6 +20,12 @@
 
     var timeline = [];
 
+    var preload = {
+        type: jsPsychPreload,
+        images: ['imgs/trial_0.png', 'imgs/trial_1.png', 'imgs/trial_2.png', 'imgs/trial_3.png', 'imgs/trial_4.png', 'imgs/trial_5.png', 'imgs/trial_6.png', 'imgs/trial_7.png', 'imgs/trial_8.png', 'imgs/trial_9.png', 'imgs/trial_10.png', 'imgs/trial_11.png', 'imgs/trial_12.png', 'imgs/trial_13.png', 'imgs/trial_14.png', 'imgs/trial_15.png', 'imgs/trial_16.png', 'imgs/trial_17.png', 'imgs/trial_18.png', 'imgs/trial_19.png', 'imgs/trial_20.png', 'imgs/trial_21.png', 'imgs/trial_22.png', 'imgs/trial_23.png', 'imgs/trial_24.png', 'imgs/trial_25.png', 'imgs/trial_26.png', 'imgs/trial_27.png', 'imgs/trial_28.png', 'imgs/trial_29.png', 'imgs/trial_30.png', 'imgs/trial_31.png', 'imgs/trial_32.png', 'imgs/trial_33.png', 'imgs/trial_34.png', 'imgs/trial_35.png', 'imgs/trial_36.png', 'imgs/trial_37.png', 'imgs/trial_38.png', 'imgs/trial_39.png',]
+    }
+    timeline.push(preload)
+
     var welcome = {
         type: jsPsychHtmlButtonResponse,
         stimulus: "Hi! Welcome and thanks for participating in the experiment!",
@@ -27,19 +33,18 @@
     }
     timeline.push(welcome);
 
-    var exp_type = Math.random() < 0.5 ? 'single' : 'multi';
+    var random_indices = Array.from({ length: 30 }, () => Math.floor(Math.random() * 40));
 
-    var wordPool = [];
-    if (exp_type == 'single') {
-        wordPool = [
-            'TC9K9', 'CNZQV', 'MWCWO', 'JUREU', '3RDFA', 'TAQKB', '9KZ4B', 'QJ4RE',
-            '48AO5', 'ZCGXO', 'F6SZ3', 'JF64Q', 'X4U2E', '7YTYV', 'LXGGK', 'YO9LH',
-            'NUAC8', 'PRWT6', 'BEP0L', 'O61TR', 'F05F0', 'P7310', 'AA9LE', 'XR6Q3',
-            'IZEHH', 'JPZ7K', '6W08P', '45NQG', '6QX7G', 'YTXCY', '8XSS4', 'Q4YSY',
-            'M1KXJ', 'DQDTA', 'VVDE3', 'E88TS', 'LECP1', 'TESB8', 'NEOA1', 'YRR8Z'
-        ]
-    } else {
-        wordPool = ['DFGW03', 'ZXFB', 'IXWE', 'JWVXY', 'VOF5962', 'DSALN6G', 'OLR8ZRF', 'Z6PBO', 'BDRBZ0HFL', 'NYTGY', 'JPFXHQ', 'C2PMOE', '01WQAW', 'JUAQA', 'FZHA7TJ', 'V7X', 'ZH3S', '6ZQ', '7YSC', 'W0QD', 'FCJ', 'AZDTT', 'LNXH', '1Y2RVHZA', 'XSYDCVF', 'SUMBJ', 'VMQVCJM', 'WFKYMD', 'KKOWY6STV', 'X80H3G', 'RQTLHA', 'XOHP63HBU', 'CQEIGIJ7', 'VIUC', 'KBYZO2K', '6BH6', 'FBEEKFO', 'SW13G', 'SAYTHH8', 'A61'];
+    var correct_answers = [];
+    var seen = new Set();
+
+    for (let i = 0; i < 30; i++) {
+        if (seen.has(random_indices[i])) {
+            correct_answers.push(0);
+        } else {
+            correct_answers.push(1);  // 1 is new
+            seen.add(random_indices[i]);
+        }
     };
 
     let seenWords = new Set();
@@ -47,66 +52,33 @@
     var instructions = {
         type: jsPsychHtmlKeyboardResponse,
         stimulus: function () {
-            let a = exp_type == 'single' ? `<b>5-character</b>` : ``;
             return `
-            <p>In this experiment, you will be shown a series of ${a} phrases, one at a time.</p>
-            <p>For each word, press 'seen' if you have seen the phrase before, and 'new' if this is the first time you're seeing the phrase.</p>
+            <p>In this experiment, you will be shown a series of <b>black and white</b> pixel images, one at a time.</p>
+            <p>For each word, press 'seen' if you have seen the image before, and 'new' if this is the first time you're seeing the image.</p>
             <p>Press any key to begin.</p>
         `}
     };
     timeline.push(instructions);
 
+    var test_stimuli = [];
+    for (var i = 0; i < 30; i++) {
+        var stimulus = `<img src="imgs/trial_${random_indices[i]}.png" style="max-width: 500px; display: block; margin: 20px auto;">`;
+        test_stimuli.push({
+            correct_response: correct_answers[i],
+            img: stimulus
+        })
+    };
+
     // 
-    var initTrial = {
+    var test = {
         type: jsPsychHtmlButtonResponse,
-        stimulus: function () {
-            let randIdx = Math.floor(Math.random() * wordPool.length);
-            let wordInit = wordPool[randIdx];
-            // add this to seen words
-            seenWords.add(wordInit);
-            return `<div style="font-size: 40px;">${wordInit}</div>`;
-        },
+        stimulus: jsPsych.timelineVariable('img'),
         choices: ['Seen', 'New'],
         data: function () {
             return {
-                trial_type: 'memory',
-                correct_response: 1,
+                task: 'memory',
+                correct_response: jsPsych.timelineVariable('correct_response'),
             }
-        },
-        on_finish: function (data) {
-            console.log(data.response);
-            data.correct = data.response == data.correct_response;
-        }
-    };
-    timeline.push(initTrial);
-
-    var test_stimuli = [
-        {
-            correct_response: 0
-        },
-        {
-            correct_response: 1, // 1 is new
-        }
-    ]
-    // okay, now we make two types of trials
-    var test = {
-        type: jsPsychHtmlButtonResponse,
-        stimulus: function () {
-            let word = "";
-            if (jsPsych.timelineVariable('correct_response') == 0) {
-                let seenArray = Array.from(seenWords);
-                word = seenArray[Math.floor(Math.random() * seenArray.length)];
-            } else {
-                let unusedWords = wordPool.filter(w => !seenWords.has(w));
-                word = unusedWords[Math.floor(Math.random() * unusedWords.length)];
-                seenWords.add(word);
-            }
-            return `<div style="font-size: 40px;">${word}</div>`;
-        },
-        choices: ['Seen', 'New'],
-        data: {
-            task: exp_type,
-            correct_response: jsPsych.timelineVariable('correct_response'),
         },
         on_finish: function (data) {
             console.log(data.response);
@@ -117,10 +89,6 @@
     var test_procedure = {
         timeline: [test],
         timeline_variables: test_stimuli,
-        sample: {
-            type: 'with-replacement',
-            size: 29
-        }
     };
 
     timeline.push(test_procedure);
@@ -128,7 +96,7 @@
     // Add a thank you message
     var ty = {
         type: jsPsychHtmlKeyboardResponse,
-        stimulus: "Thank you for participating!"
+        stimulus: "Thank you for participating! Press any key to leave."
     };
     timeline.push(ty);
 
