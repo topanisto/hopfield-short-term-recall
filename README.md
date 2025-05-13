@@ -11,4 +11,4 @@ This project explores the following:
 - An empirical exploration of the number of prototypes stored by a Hopfield network and the probability of the network converging to a prototype state.
 
 ## How this repo is organized
-`hopfield.py` contains our implementation for a discrete Hopfield Network implementing an asynchronous update rule. `wm_single.html` is the raw source code for the short-term verbal memory cognitive task, implemented in jsPsych and playable either at [cognition.run](https://wea3utkzqr.cognition.run) or in-browser.
+The bulk of the work is recoreded in the `main.ipynb` notebook, which describes the algorithm, task, and data analysis. `hopfield.py` contains our implementation for a discrete Hopfield Network implementing an asynchronous update rule. `wm_single.html` is the raw source code for the short-term verbal memory cognitive task, implemented in jsPsych and playable either at [cognition.run](https://wea3utkzqr.cognition.run) or in-browser.
