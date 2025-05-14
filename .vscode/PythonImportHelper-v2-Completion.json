@@ -1,0 +1,56 @@
+[
+    {
+        "label": "pandas",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "pandas",
+        "description": "pandas",
+        "detail": "pandas",
+        "documentation": {}
+    },
+    {
+        "label": "matplotlib.pyplot",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "matplotlib.pyplot",
+        "description": "matplotlib.pyplot",
+        "detail": "matplotlib.pyplot",
+        "documentation": {}
+    },
+    {
+        "label": "numpy",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "numpy",
+        "description": "numpy",
+        "detail": "numpy",
+        "documentation": {}
+    },
+    {
+        "label": "seaborn",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "seaborn",
+        "description": "seaborn",
+        "detail": "seaborn",
+        "documentation": {}
+    },
+    {
+        "label": "HopfieldShortTerm",
+        "kind": 6,
+        "importPath": "hopfield",
+        "description": "hopfield",
+        "peekOfCode": "class HopfieldShortTerm(Hopfield):\n  def __init__(self, num_nodes, max_iter):\n    super().__init__(num_nodes, max_iter)\n  def short_term_recall(self, inputs, c=1):\n    seen_list = []\n    for idx, input in enumerate(inputs):\n      if idx == 0:\n        self.fill_prototypes([input])\n        seen_list.append(0)\n        continue",
+        "detail": "hopfield",
+        "documentation": {}
+    },
+    {
+        "label": "Hopfield",
+        "kind": 6,
+        "importPath": "hopfield",
+        "description": "hopfield",
+        "peekOfCode": "class Hopfield:\n  def __init__(self, num_nodes, max_iter):\n    self.num_nodes = num_nodes\n    self.weights = np.zeros((num_nodes, num_nodes))\n    self.max_iter = max_iter\n  def short_term_recall(self, inputs, c=1):\n    return\n  def fill_prototypes(self, prototypes):\n    \"\"\"\n    Train weights on prototypes.",
+        "detail": "hopfield",
+        "documentation": {}
+    }
+]
