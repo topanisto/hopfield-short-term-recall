@@ -3,11 +3,39 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 
+class HopfieldShortTerm(Hopfield):
+  def __init__(self, num_nodes, max_iter):
+    super().__init__(num_nodes, max_iter)
+
+  def short_term_recall(self, inputs, c=1):
+    seen_list = []
+    for idx, input in enumerate(inputs):
+      if idx == 0:
+        self.fill_prototypes([input])
+        seen_list.append(0)
+        continue
+      else:
+        result, _ = self.recall(input)
+        l = len(self.prototypes)
+        h = hamming(result, input) #0 if hamming is 0 or 25
+        p_seen = np.exp(- c*h * max(accuracy[l-1], 0.01)) #flip with this probability
+        seen = np.random.choice([0, 1], p=[1-p_seen, p_seen])
+        seen_list.append(seen)
+        if not seen:
+          self.prototypes = np.append(self.prototypes, [input], axis=0)
+          # update weights and zero out diagonal
+          self.weights += np.outer(input, input) / self.num_nodes
+          np.fill_diagonal(self.weights, 0)
+    return seen_list
+
 class Hopfield:
   def __init__(self, num_nodes, max_iter):
     self.num_nodes = num_nodes
     self.weights = np.zeros((num_nodes, num_nodes))
     self.max_iter = max_iter
+
+  def short_term_recall(self, inputs, c=1):
+    return
   
   def fill_prototypes(self, prototypes):
     """
@@ -33,10 +61,11 @@ class Hopfield:
 
     threshold: a np.array of size self.num_nodes
     """
-    e = self.energy(state)
     if not threshold:
-      threshold = np.zeros(self.num_nodes)
-    self.threshold = threshold
+      self.threshold = np.zeros(self.num_nodes)
+    else:
+      self.threshold = threshold
+    e = self.energy(state)
     fin = state
 
     for i in range(self.max_iter):
@@ -50,7 +79,7 @@ class Hopfield:
 
   # Hopfield energy. assume no thresholds!
   def energy(self, state):
-    energy = -0.5 * np.dot(state, np.dot(self.weights, state)) + np.dot(state * self.threshold)
+    energy = -0.5 * np.dot(state, np.dot(self.weights, state)) + np.dot(state, self.threshold)
   
   # asynchronously update a node
   def _async_update(self, state):
