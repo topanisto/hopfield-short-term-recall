@@ -1,5 +1,5 @@
 # Hopfield Short-Term Memory Recall
-For 9.530's Final Project, by Anka Hu.
+Final Project for MIT 9.530: Emergent Computation within Distributed Neural Circuits, by Anka Hu.
 
 ## Overview
 
